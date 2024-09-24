@@ -1,0 +1,79 @@
+Here's a modified VBA code that combines both operations into a single macro:
+
+Step 1: Extract all rows containing bold text from the source sheet into a new sheet.
+Step 2: Delete all rows containing bold text from the source sheet.
+
+VBA Code:
+
+Sub ExtractAndDeleteBoldRows()
+    Dim wsSource As Worksheet
+    Dim wsTarget As Worksheet
+    Dim sourceRow As Range
+    Dim targetRow As Integer
+    Dim lastRow As Long
+    Dim i As Long
+    Dim cell As Range
+    Dim isBold As Boolean
+    
+    ' Set the source sheet
+    Set wsSource = ThisWorkbook.Sheets("Sheet1") ' Change to your source sheet name
+    
+    ' Create or set the target sheet
+    On Error Resume Next
+    Set wsTarget = ThisWorkbook.Sheets("BoldRows")
+    If wsTarget Is Nothing Then
+        Set wsTarget = ThisWorkbook.Sheets.Add
+        wsTarget.Name = "BoldRows"
+    End If
+    On Error GoTo 0
+    
+    targetRow = 1 ' Start pasting in the first row of the target sheet
+
+    ' Find the last row in the source sheet
+    lastRow = wsSource.Cells(wsSource.Rows.Count, 1).End(xlUp).Row
+
+    ' Loop through rows from bottom to top to avoid row shifting issues
+    For i = lastRow To 1 Step -1
+        isBold = False
+        
+        ' Check each cell in the row for bold text
+        For Each cell In wsSource.Rows(i).Cells
+            If cell.Font.Bold Then
+                isBold = True
+                Exit For ' No need to check further if a bold cell is found
+            End If
+        Next cell
+        
+        ' If a bold cell is found, copy the row to the target sheet
+        If isBold Then
+            wsSource.Rows(i).Copy wsTarget.Rows(targetRow)
+            targetRow = targetRow + 1 ' Move to the next row in the target sheet
+            
+            ' Delete the row from the source sheet
+            wsSource.Rows(i).Delete
+        End If
+    Next i
+
+    MsgBox "Bold rows have been extracted and deleted."
+End Sub
+
+
+Key Parts of the Code:
+Extract Bold Rows: The code first checks each row for bold text. If bold text is found, the row is copied to a new sheet named BoldRows.
+Delete Bold Rows: After copying, the same row is deleted from the source sheet.
+Handling the Target Sheet: If the target sheet doesn't exist, it is created with the name "BoldRows". If it already exists, it uses the existing sheet.
+How to Use the Code:
+Open the VBA Editor by pressing Alt + F11.
+Insert a New Module: Go to Insert → Module.
+Paste the code into the module.
+Run the Code: Press F5 or go to Run → Run Sub/UserForm.
+After running the macro, all rows containing bold text will be copied to the new sheet (BoldRows), and those rows will be deleted from the source sheet.
+
+
+
+
+
+
+
+
+
